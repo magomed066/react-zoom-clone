@@ -1,15 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { IInitialUserState, IUser } from '@/types'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-interface InitialState {}
-
-const initialState: InitialState = {}
+const initialState: IInitialUserState = {
+	user: null,
+}
 
 const authSlice = createSlice({
 	name: 'auth',
 	initialState,
-	reducers: {},
+	reducers: {
+		setUser(state, action: PayloadAction<IUser>) {
+			state.user = action.payload
+		},
+	},
 })
 
-export const {} = authSlice.actions
+export const { setUser } = authSlice.actions
 
 export default authSlice.reducer

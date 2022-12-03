@@ -1,6 +1,5 @@
 import {
 	EuiButton,
-	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiImage,
@@ -9,15 +8,53 @@ import {
 	EuiText,
 	EuiTextColor,
 } from '@elastic/eui'
-import React, { useContext } from 'react'
-import styles from './index.module.scss'
 import Animation from '@/assets/animation.gif'
 import Logo from '@/assets/logo.png'
 import Google from '@/assets/google.svg'
-import { ThemeContext } from '@/context/themeContext'
+import { firebaseAuth, userRef } from '@/config/firebase'
+import { addDoc, getDocs, query, where } from 'firebase/firestore'
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '@/store/hooks'
+import { setUser } from '@/store/slices/authSlice'
+import styles from './index.module.scss'
 
 const Login = () => {
-	const { mode, toggleTheme } = useContext(ThemeContext)
+	const navigate = useNavigate()
+	const dispatch = useAppDispatch()
+
+	const handleLogin = async () => {
+		const provider = new GoogleAuthProvider()
+
+		const { user } = await signInWithPopup(firebaseAuth, provider)
+		const { displayName, email, uid } = user
+
+		if (email) {
+			// to check if there's any user id in the DB
+			// which corresponds to the current user id
+			const fireStoreQuery = query(userRef, where('uid', '==', uid))
+
+			// Get users from the DB
+			const fetchedUsers = await getDocs(fireStoreQuery)
+
+			// Checking if we have any user with the current user id
+			// and if we don't
+			// we add a new user
+			if (fetchedUsers.docs.length === 0) {
+				await addDoc(userRef, {
+					uid,
+					email,
+					name: displayName,
+				})
+			}
+		}
+
+		if (displayName && email && uid) {
+			dispatch(setUser({ name: displayName, email, uid }))
+		}
+
+		navigate('/')
+	}
 
 	return (
 		<EuiFlexGroup
@@ -42,7 +79,7 @@ const Login = () => {
 								</h3>
 							</EuiText>
 							<EuiSpacer size="l" />
-							<EuiButton>
+							<EuiButton onClick={handleLogin}>
 								Login with Google{' '}
 								<EuiImage src={Google} alt="Google" size={20} />
 							</EuiButton>

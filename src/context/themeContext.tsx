@@ -1,4 +1,4 @@
-import { EuiProvider } from '@elastic/eui'
+import { EuiProvider, EuiThemeProvider } from '@elastic/eui'
 import { createContext, FC, ReactNode, useState } from 'react'
 import { EmptyFunc, Theme } from '../types'
 
@@ -17,7 +17,14 @@ export const ThemeContext = createContext<IThemeContext>({
 })
 
 export const ThemeProvider: FC<IThemeProvider> = ({ children }) => {
-	const [mode, setMode] = useState<Theme>('light')
+	const [mode, setMode] = useState<Theme>('dark')
+
+	const overrides = {
+		colors: {
+			LIGHT: { primary: '#0b5cff' },
+			DARK: { primary: '#0b5cff' },
+		},
+	}
 
 	const toggleTheme = () => {
 		if (mode === 'light') {
@@ -34,7 +41,9 @@ export const ThemeProvider: FC<IThemeProvider> = ({ children }) => {
 
 	return (
 		<ThemeContext.Provider value={value}>
-			<EuiProvider colorMode={mode}>{children}</EuiProvider>
+			<EuiProvider colorMode={mode}>
+				<EuiThemeProvider modify={overrides}> {children}</EuiThemeProvider>
+			</EuiProvider>
 		</ThemeContext.Provider>
 	)
 }
