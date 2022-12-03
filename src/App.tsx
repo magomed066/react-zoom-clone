@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
-import { ThemeProvider } from './context/themeContext'
-import { Dashboard, Login } from './pages'
+import { ThemeProvider } from '@/context/themeContext'
+import { Dashboard, Login } from '@/pages'
 
 function App() {
 	return (
